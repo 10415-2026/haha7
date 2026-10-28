@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>지성아 쓰레기 버려야지! 🚮 - AI 스마트 분리배출 스쿨 앱</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Gaegu (Cute Korean font) & Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        jisung: {
+                            green: '#10b981',
+                            lightGreen: '#d1fae5',
+                            yellow: '#fef08a',
+                            darkYellow: '#eab308',
+                            pink: '#f472b6',
+                            bg: '#f0fdf4',
+                            darkBg: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        gaegu: ['Gaegu', 'cursive'],
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body { user-select: none; font-family: 'Noto Sans KR', sans-serif; }
+        
+        .font-gaegu { font-family: 'Gaegu', cursive; }
+        
+        /* Bouncy Button Animation */
+        .btn-bounce {
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-bounce:active {
+            transform: scale(0.92);
+        }
+
+        /* Scan Laser Effect */
+        @keyframes scanLaser {
+            0% { top: 0%; opacity: 0.8; }
+            50% { top: 92%; opacity: 1; }
+            100% { top: 0%; opacity: 0.8; }
+        }
+        .scan-laser {
+            animation: scanLaser 1.8s infinite ease-in-out;
+        }
+
+        /* Floating Badge Animation */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(3deg); }
+        }
+        .float-anim {
+            animation: floatSlow 3s ease-in-out infinite;
+        }
+
+        /* Shimmer Loading Animation */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .animate-shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        .tab-page {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease-in-out;
+        }
+        .tab-page.active {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="h-full flex items-center justify-center bg-slate-900 p-0 sm:p-4 text-slate-800 dark:text-slate-100 antialiased">
+
+    <!-- Mobile App Container Shell -->
+    <div id="app-shell" class="relative w-full max-w-md h-full sm:h-[844px] bg-emerald-50/60 dark:bg-slate-900 overflow-hidden sm:rounded-[44px] shadow-2xl flex flex-col border-0 sm:border-[10px] border-slate-800 dark:border-slate-700">
+
+        <!-- iOS Style Status Bar Header -->
+        <header class="pt-3 pb-2 px-6 flex justify-between items-center z-30 bg-emerald-100/80 dark:bg-slate-900/90 backdrop-blur-md border-b border-emerald-200/50 dark:border-slate-800">
+            <div class="flex items-center space-x-2">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span class="text-xs font-black text-emerald-900 dark:text-emerald-300 font-gaegu text-base tracking-wide">천안여고 (민)지성이면 감천</span>
+            </div>
+            <div class="flex items-center space-x-3 text-xs">
+                <span id="live-clock" class="text-[11px] font-bold text-slate-600 dark:text-slate-300">12:30</span>
+                <button id="theme-btn" class="p-1 rounded-full text-amber-500 dark:text-yellow-300 hover:scale-110 transition btn-bounce" title="다크모드 전환">
+                    <i class="fa-solid fa-sun dark:hidden"></i>
+                    <i class="fa-solid fa-moon hidden dark:inline"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Cute Title Banner -->
+        <div class="px-5 py-3 bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 dark:from-emerald-700 dark:to-teal-900 text-white shadow-md flex items-center justify-between z-20">
+            <div>
+                <h1 class="text-2xl font-bold font-gaegu tracking-wider drop-shadow-sm flex items-center gap-1.5">
+                    지성아 쓰레기 버려야지! <span class="text-xl">🚮</span>
+                </h1>
+                <p class="text-[11px] text-emerald-50 dark:text-emerald-200 font-medium">SDGs 11·12 깨끗한 천안여고 등하굣길 만들기</p>
+            </div>
+            <div class="w-11 h-11 bg-yellow-300 text-slate-800 rounded-2xl flex items-center justify-center font-bold shadow-lg float-anim border-2 border-white cursor-pointer" onclick="playAudioEffect('chime')" title="클릭해서 소리듣기">
+                <span class="text-2xl">🧹</span>
+            </div>
+        </div>
+
+        <!-- Main Scrollable Content Area -->
+        <main class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4">
+
+            <!-- ================= TAB 1: AI CAMERA SCANNER ================= -->
+            <section id="page-camera" class="tab-page active space-y-3">
+                
+                <!-- Friendly Tip Card -->
+                <div class="bg-yellow-100 dark:bg-amber-950/60 border-2 border-yellow-300 dark:border-amber-800 rounded-2xl p-3 flex items-center space-x-3 shadow-sm">
+                    <div class="text-2xl">💡</div>
+                    <div class="text-xs text-slate-700 dark:text-amber-200 leading-snug">
+                        <strong class="font-bold text-amber-900 dark:text-amber-300">지성아!</strong> 무심코 버린 일회용 컵도 깨끗이 세척해서 버리면 소중한 자원이 된대!
+                    </div>
+                </div>
+
+                <!-- Camera Simulation & AI Scanner Frame -->
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 shadow-md border border-emerald-100 dark:border-slate-700 flex flex-col items-center">
+                    
+                    <div class="w-full h-60 bg-slate-950 rounded-2xl relative overflow-hidden flex items-center justify-center border-2 border-emerald-400/50 group">
+                        
+                        <!-- Real Camera Video Stream -->
+                        <video id="webcam" class="w-full h-full object-cover hidden" autoplay playsinline muted></video>
+                        
+                        <!-- Uploaded Image Preview -->
+                        <img id="uploaded-img" class="w-full h-full object-cover hidden" alt="스캔할 사진">
+
+                        <!-- Scanning Frame Laser Overlay -->
+                        <div id="scan-laser-box" class="absolute inset-4 border-2 border-dashed border-emerald-400/80 rounded-xl pointer-events-none flex items-center justify-center hidden">
+                            <div class="scan-laser absolute w-full h-1 bg-gradient-to-r from-transparent via-yellow-300 to-transparent shadow-[0_0_12px_#fef08a]"></div>
+                        </div>
+
+                        <!-- Camera Placeholder & Dropzone -->
+                        <div id="cam-placeholder" class="text-center p-4 space-y-2 z-10">
+                            <div class="w-16 h-16 mx-auto bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-3xl animate-bounce">
+                                🥤
+                            </div>
+                            <p class="text-xs text-slate-300 font-medium">카메라를 켜거나 직접 쓰레기 사진을 업로드해봐!</p>
+                            <label class="inline-block bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl cursor-pointer btn-bounce shadow-md">
+                                <i class="fa-solid fa-upload mr-1"></i> 사진 파일 선택
+                                <input type="file" id="file-input" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Camera Control Action Buttons -->
+                    <div class="w-full mt-3 flex gap-2">
+                        <button id="cam-toggle-btn" class="btn-bounce flex-1 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl shadow flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-camera text-emerald-400"></i>
+                            <span id="cam-status-text">카메라 켜기</span>
+                        </button>
+                        <button onclick="runAIScanProcess()" class="btn-bounce flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-bold py-2.5 rounded-xl shadow-lg flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-wand-magic-sparkles text-yellow-300"></i>
+                            <span>AI 스마트 스캔</span>
+                        </button>
+                    </div>
+
+                    <!-- Quick Sample Buttons -->
+                    <div class="w-full mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                        <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-2 flex items-center justify-between">
+                            <span>👇 지성이가 등하굣길에 자주 버리는 쓰레기:</span>
+                            <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">클릭 시 자동분석</span>
+                        </p>
+                        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 text-xs">
+                            <button onclick="triggerAIScan('cup')" class="btn-bounce px-3 py-2 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold rounded-xl whitespace-nowrap border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-200">
+                                🥤 아이스 컵
+                            </button>
+                            <button onclick="triggerAIScan('can')" class="btn-bounce px-3 py-2 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold rounded-xl whitespace-nowrap border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-200">
+                                🥫 음료수 캔
+                            </button>
+                            <button onclick="triggerAIScan('pack')" class="btn-bounce px-3 py-2 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold rounded-xl whitespace-nowrap border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-200">
+                                🧃 우유팩/종이팩
+                            </button>
+                            <button onclick="triggerAIScan('straw')" class="btn-bounce px-3 py-2 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold rounded-xl whitespace-nowrap border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-200">
+                                🥤 빨대 & 라벨
+                            </button>
+                            <button onclick="triggerAIScan('tteok')" class="btn-bounce px-3 py-2 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold rounded-xl whitespace-nowrap border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-200">
+                                🍱 떡볶이 용기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Result Card Container -->
+                <div id="ai-result-card" class="bg-white dark:bg-slate-800 rounded-3xl p-4 shadow-md border-2 border-emerald-400 hidden space-y-3">
+                    <div class="flex justify-between items-start border-b dark:border-slate-700 pb-2">
+                        <div>
+                            <span id="ai-item-tag" class="text-[10px] bg-yellow-300 text-slate-900 font-extrabold px-2.5 py-0.5 rounded-full">AI 분석 99.2%</span>
+                            <h3 id="ai-item-name" class="text-base font-black text-slate-800 dark:text-slate-100 mt-1 flex items-center gap-1.5">
+                                일회용 아이스 컵
+                            </h3>
+                        </div>
+                        <span class="text-2xl float-anim">✨</span>
+                    </div>
+
+                    <!-- Warning Alert -->
+                    <div id="ai-warning-box" class="bg-rose-50 dark:bg-rose-950/50 border-l-4 border-rose-500 p-2.5 rounded-r-xl text-xs text-rose-800 dark:text-rose-200 font-medium">
+                        ⚠️ <strong>지성 주의:</strong> 남은 음료를 길거리 하수구에 버리면 여름철 악취 및 모기·벌레 꼬임의 주원인이 됩니다!
+                    </div>
+
+                    <!-- Step-by-Step Instructions -->
+                    <div class="space-y-1.5 text-xs">
+                        <p class="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                            <i class="fa-solid fa-list-check text-emerald-500"></i> 올바른 3단계 버리기:
+                        </p>
+                        <ol id="ai-step-list" class="space-y-1.5 text-slate-600 dark:text-slate-300 list-decimal pl-4 font-medium">
+                            <li>음료와 얼음을 완전히 비우기</li>
+                            <li>빨대는 일반쓰레기로, 컵홀더는 종이로 분리</li>
+                            <li>물로 살짝 헹군 후 투명 플라스틱 수거함에 쏙!</li>
+                        </ol>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button onclick="claimScanPoints()" id="claim-pts-btn" class="btn-bounce w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl shadow-md text-xs flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-leaf text-yellow-300"></i>
+                        <span>올바르게 배출 인증하고 +50P 받기</span>
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- ================= TAB 2: HOTSPOT MAP ================= -->
+            <section id="page-map" class="tab-page space-y-3">
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 shadow-md space-y-3 border border-emerald-100 dark:border-slate-700">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-sm text-slate-800 dark:text-slate-100 flex items-center gap-1">
+                                🗺️ 천안여고 등하굣길 쓰레기 지도
+                            </h3>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">무단투기 & 하수구 막힘 신고 공유 현황</p>
+                        </div>
+                        <button onclick="openReportModal()" class="btn-bounce bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center space-x-1">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>제보하기</span>
+                        </button>
+                    </div>
+
+                    <!-- Interactive SVG Map Canvas Frame -->
+                    <div class="relative w-full h-64 bg-slate-950 rounded-2xl overflow-hidden border-2 border-emerald-500/30 shadow-inner">
+                        <svg id="school-map-svg" class="w-full h-full" viewBox="0 0 400 300">
+                            <!-- Background Map Layer -->
+                            <rect width="400" height="300" fill="#0f172a"/>
+                            
+                            <!-- Roads and Paths -->
+                            <path d="M 0 160 Q 200 150 400 170" stroke="#334155" stroke-width="26" fill="none"/>
+                            <path d="M 190 0 L 210 300" stroke="#334155" stroke-width="20" fill="none"/>
+                            <path d="M 120 160 L 120 280" stroke="#1e293b" stroke-width="12" fill="none" stroke-dasharray="4"/>
+
+                            <!-- Cheonan Girls' High School Area Zone -->
+                            <polygon points="110,30 290,20 320,120 90,110" fill="#10b981" fill-opacity="0.2" stroke="#34d399" stroke-width="2" stroke-dasharray="4"/>
+                            <text x="200" y="75" fill="#a7f3d0" font-size="12" font-weight="extrabold" text-anchor="middle">🏫 천안여자고등학교</text>
+                            
+                            <text x="70" y="225" fill="#94a3b8" font-size="10" text-anchor="middle">삼룡천 산책로</text>
+                            <text x="320" y="235" fill="#94a3b8" font-size="10" text-anchor="middle">원룸/상가 골목길</text>
+
+                            <!-- Interactive Map Pins Group -->
+                            <g id="map-pins-container">
+                                <!-- Pin 1: Front Gate Bus Stop -->
+                                <g class="cursor-pointer group" onclick="selectMapPin('정문 버스정류장', '일회용 아이스 컵 무단투기로 악취 및 우천시 하수구 막힘 유발', '🚨 처리대기', '120', '150')">
+                                    <circle cx="120" cy="150" r="14" fill="#ef4444" fill-opacity="0.4" class="animate-ping"/>
+                                    <circle cx="120" cy="150" r="8" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
+                                    <text x="120" y="174" fill="#f87171" font-size="9" font-weight="bold" text-anchor="middle">정문 버스장</text>
+                                </g>
+
+                                <!-- Pin 2: Rear Clean Zone -->
+                                <g class="cursor-pointer group" onclick="selectMapPin('후문 분리수거대', '학생 자율 동아리가 완벽 세척 배출 관리 중', '✅ 클린 존', '270', '95')">
+                                    <circle cx="270" cy="95" r="8" fill="#10b981" stroke="#ffffff" stroke-width="2"/>
+                                    <text x="270" y="115" fill="#34d399" font-size="9" font-weight="bold" text-anchor="middle">후문 클린존</text>
+                                </g>
+
+                                <!-- Pin 3: Samryong Creek Alley -->
+                                <g class="cursor-pointer group" onclick="selectMapPin('삼룡천 산책로 모퉁이', '음료수 잔여물 컵 산적 및 담배꽁초 투기 구역', '⚠️ 점검 중', '160', '225')">
+                                    <circle cx="160" cy="225" r="8" fill="#f59e0b" stroke="#ffffff" stroke-width="2"/>
+                                    <text x="160" y="244" fill="#fbbf24" font-size="9" font-weight="bold" text-anchor="middle">산책로 모퉁이</text>
+                                </g>
+                            </g>
+                        </svg>
+
+                        <!-- Map Legend Overlay -->
+                        <div class="absolute bottom-2 left-2 bg-slate-900/90 text-[10px] p-2 rounded-xl text-slate-300 flex space-x-2 border border-slate-700 shadow-md backdrop-blur-sm">
+                            <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-red-500 mr-1"></span>처리대기</span>
+                            <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-amber-500 mr-1"></span>점검중</span>
+                            <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 mr-1"></span>클린존</span>
+                        </div>
+                    </div>
+
+                    <!-- Selected Spot Info Card -->
+                    <div id="map-info-card" class="bg-emerald-50 dark:bg-slate-700/60 p-3.5 rounded-2xl border border-emerald-200 dark:border-slate-600 text-xs space-y-1.5 transition-all">
+                        <div class="flex justify-between items-center">
+                            <span id="pin-title" class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1">
+                                <i class="fa-solid fa-location-dot text-emerald-500"></i> 지도의 핀을 터치해보세요!
+                            </span>
+                            <span id="pin-badge" class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-200 dark:bg-slate-600 text-emerald-800 dark:text-slate-200">
+                                안내
+                            </span>
+                        </div>
+                        <p id="pin-desc" class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                            위치를 선택하면 해당 구역의 무단투기 상황과 세부 활동 현황을 볼 수 있어!
+                        </p>
+                        <div id="pin-action-area" class="pt-1 hidden">
+                            <button onclick="resolvePinSpot()" class="btn-bounce bg-emerald-500 text-white font-bold text-[11px] px-3 py-1.5 rounded-xl shadow hover:bg-emerald-600 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>청소 완료 처리하기 (+50P)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= TAB 3: MILEAGE & QUIZ ================= -->
+            <section id="page-quiz" class="tab-page space-y-3">
+                
+                <!-- Point Card Banner -->
+                <div class="bg-gradient-to-r from-yellow-300 via-amber-300 to-amber-400 dark:from-amber-600 dark:to-yellow-600 rounded-3xl p-4 text-slate-900 dark:text-white shadow-md relative overflow-hidden">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-[11px] font-black uppercase tracking-wider bg-white/50 dark:bg-black/30 px-2.5 py-0.5 rounded-full border border-yellow-400/40">
+                                지성이의 에코 마일리지
+                            </span>
+                            <div class="mt-2 flex items-baseline space-x-1">
+                                <span id="user-pts" class="text-3xl font-extrabold tracking-tight">1,250</span>
+                                <span class="text-sm font-bold">P</span>
+                            </div>
+                        </div>
+                        <div class="text-4xl float-anim">🏆</div>
+                    </div>
+                    <p class="text-[11px] mt-2 font-medium opacity-90 flex items-center gap-1">
+                        🌱 지성이 덕분에 우리 학교 CO₂ <strong id="co2-val" class="font-bold underline decoration-amber-600">4.25 kg</strong> 감축 성공!
+                    </p>
+                </div>
+
+                <!-- Daily Quiz Box -->
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 shadow-md space-y-2 border border-emerald-100 dark:border-slate-700">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-xs text-emerald-600 dark:text-emerald-400 flex items-center">
+                            <i class="fa-solid fa-lightbulb text-amber-400 mr-1.5"></i> 오늘의 지성이 에코 퀴즈
+                        </h3>
+                        <span class="text-[10px] bg-yellow-200 dark:bg-amber-900/60 text-slate-800 dark:text-amber-200 px-2 py-0.5 rounded-full font-bold">+30 P</span>
+                    </div>
+
+                    <p id="quiz-question-text" class="text-xs font-bold text-slate-800 dark:text-slate-100 leading-relaxed">
+                        Q. 플라스틱 음료 컵 안의 얼음과 남은 음료는 버리기 전 반드시 깔끔히 비워야 할까요?
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <button onclick="handleQuiz(true)" class="btn-bounce py-2.5 bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-950 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-300 font-bold rounded-xl text-xs flex items-center justify-center space-x-1">
+                            <span>⭕ 당연히 예!</span>
+                        </button>
+                        <button onclick="handleQuiz(false)" class="btn-bounce py-2.5 bg-rose-100 hover:bg-rose-200 dark:bg-rose-950 dark:hover:bg-rose-900 text-rose-800 dark:text-rose-300 font-bold rounded-xl text-xs flex items-center justify-center space-x-1">
+                            <span>❌ 그냥 버려도 됨</span>
+                        </button>
+                    </div>
+                    <div id="quiz-msg" class="text-xs hidden p-2.5 rounded-xl font-medium leading-normal"></div>
+                </div>
+
+                <!-- Class Leaderboard -->
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 shadow-md space-y-2.5 border border-emerald-100 dark:border-slate-700">
+                    <h3 class="font-bold text-xs text-slate-800 dark:text-slate-100 flex items-center justify-between">
+                        <span class="flex items-center"><i class="fa-solid fa-crown text-amber-400 mr-1.5"></i> 천안여고 반별 에코 랭킹</span>
+                        <span class="text-[10px] text-slate-400 font-normal">실시간 집계</span>
+                    </h3>
+                    <div class="space-y-1.5 text-xs">
+                        <div class="flex items-center justify-between p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl">
+                            <span class="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                                <span class="text-base">🥇</span> 2학년 3반 <span class="text-[10px] bg-amber-200 text-amber-900 px-1.5 py-0.2 rounded font-extrabold">우리반</span>
+                            </span>
+                            <span class="font-black text-amber-800 dark:text-amber-200">14,200 P</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-2xl">
+                            <span class="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                <span class="text-base">🥈</span> 1학년 2반
+                            </span>
+                            <span class="font-bold text-slate-600 dark:text-slate-400">12,850 P</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-2xl">
+                            <span class="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                <span class="text-base">🥉</span> 3학년 1반
+                            </span>
+                            <span class="font-bold text-slate-600 dark:text-slate-400">11,400 P</span>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ================= TAB 4: GRATITUDE BOARD ================= -->
+            <section id="page-thanks" class="tab-page space-y-3">
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-4 shadow-md space-y-3 border border-emerald-100 dark:border-slate-700">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                            💌 미화원 여사님·공무관님 감사 한마디
+                        </h3>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                            학교와 마을을 깨끗하게 가꿔주시는 고마운 분들께 응원의 말을 전해봐!
+                        </p>
+                    </div>
+
+                    <!-- Post Submission Form -->
+                    <form onsubmit="postThanks(event)" class="space-y-2">
+                        <div class="flex gap-2">
+                            <input id="post-author" type="text" placeholder="작성자 (예: 2학년 김지성)" required class="w-1/2 p-2 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-pink-400">
+                            <select id="post-target" class="w-1/2 p-2 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-pink-400">
+                                <option value="교내 미화원 여사님">🏫 교내 미화원 여사님께</option>
+                                <option value="삼룡동 환경공무관님">🧹 삼룡동 환경공무관님께</option>
+                            </select>
+                        </div>
+                        <textarea id="post-text" rows="2" placeholder="따뜻하고 예쁜 응원의 메시지를 남겨주세요 💕" required class="w-full p-2.5 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-xs focus:outline-none resize-none focus:ring-2 focus:ring-pink-400"></textarea>
+                        
+                        <button type="submit" class="btn-bounce w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2.5 rounded-xl text-xs shadow flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-heart"></i>
+                            <span>감사 응원 마음 전달하기 (+20P)</span>
+                        </button>
+                    </form>
+
+                    <!-- Feed Area -->
+                    <div id="thanks-feed" class="space-y-2 max-h-56 overflow-y-auto no-scrollbar pt-1">
+                        <!-- Default Post 1 -->
+                        <div class="p-3 bg-pink-50/80 dark:bg-slate-700/60 rounded-2xl text-xs space-y-1 border border-pink-100 dark:border-slate-600">
+                            <div class="flex justify-between items-center font-bold text-pink-700 dark:text-pink-300">
+                                <span>2학년 1반 지성이들</span>
+                                <span class="text-[10px] text-slate-400 font-normal">TO. 교내 미화원 여사님</span>
+                            </div>
+                            <p class="text-slate-700 dark:text-slate-200 leading-relaxed
